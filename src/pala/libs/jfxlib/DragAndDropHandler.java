@@ -1,6 +1,7 @@
 package pala.libs.jfxlib;
 
 import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
@@ -78,6 +79,11 @@ public class DragAndDropHandler implements EventHandler<DragEvent> {
 			event.setDropCompleted(success);
 			event.consume();
 		}
+	}
+
+	public void attach(Node node) {
+		node.setOnDragOver(this);
+		node.setOnDragDropped(this);
 	}
 
 }
