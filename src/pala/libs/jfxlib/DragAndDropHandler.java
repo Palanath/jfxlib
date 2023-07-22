@@ -149,6 +149,16 @@ public interface DragAndDropHandler extends EventHandler<DragEvent> {
 		}
 	}
 
+	static DragAndDropHandler from(EventHandler<? super DragEvent> dragOverHandler,
+			EventHandler<? super DragEvent> dragDroppedHandler) {
+		return event -> {
+			if (event.getEventType() == DragEvent.DRAG_OVER)
+				dragOverHandler.handle(event);
+			else if (event.getEventType() == DragEvent.DRAG_DROPPED)
+				dragDroppedHandler.handle(event);
+		};
+	}
+
 	default void attach(Node node) {
 		node.setOnDragOver(this);
 		node.setOnDragDropped(this);
