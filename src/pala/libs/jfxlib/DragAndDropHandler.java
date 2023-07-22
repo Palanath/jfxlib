@@ -7,7 +7,7 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 
-public class DragAndDropHandler implements EventHandler<DragEvent> {
+public interface DragAndDropHandler extends EventHandler<DragEvent> {
 
 	public interface DragAcceptorBase {
 		/**
@@ -48,40 +48,32 @@ public class DragAndDropHandler implements EventHandler<DragEvent> {
 		boolean accept(Dragboard dragboard) throws Exception;
 	}
 
-	private final DataFormat[] acceptedFormats;
-	private final TransferMode[] transferModes;
-	private final DragAcceptorBase dab;
-
-	public DragAndDropHandler(DragAcceptorBase dragAcceptorBase, TransferMode[] acceptedTransferModes,
-			DataFormat... acceptedDataFormats) {
-		acceptedFormats = acceptedDataFormats;
-		transferModes = acceptedTransferModes;
-		dab = dragAcceptorBase;
-	}
-
-	@Override
-	public void handle(DragEvent event) {
-		if (event.getEventType() == DragEvent.DRAG_OVER) {
-			for (DataFormat df : acceptedFormats)
-				if (event.getDragboard().hasContent(df)) {
-					event.acceptTransferModes(transferModes);
-					break;
+	static DragAndDropHandler from(DragAcceptorBase draggedDataHandler, TransferMode[] acceptedTransferModes,
+			DataFormat... acceptedFormats) {
+		return event -> {
+			if (event.getEventType() == DragEvent.DRAG_OVER) {
+				for (DataFormat df : acceptedFormats)
+					if (event.getDragboard().hasContent(df)) {
+						event.acceptTransferModes(acceptedTransferModes);
+						break;
+					}
+				event.consume();
+			} else if (event.getEventType() == DragEvent.DRAG_DROPPED) {
+				boolean success;
+				try {
+					success = draggedDataHandler.accept(event);
+				} catch (Exception e) {
+					e.printStackTrace();
+					success = false;
 				}
-			event.consume();
-		} else if (event.getEventType() == DragEvent.DRAG_DROPPED) {
-			boolean success;
-			try {
-				success = dab.accept(event);
-			} catch (Exception e) {
-				e.printStackTrace();
-				success = false;
+				event.setDropCompleted(success);
+				event.consume();
 			}
-			event.setDropCompleted(success);
-			event.consume();
-		}
+		};
+
 	}
 
-	public void attach(Node node) {
+	default void attach(Node node) {
 		node.setOnDragOver(this);
 		node.setOnDragDropped(this);
 	}
