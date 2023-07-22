@@ -73,6 +73,82 @@ public interface DragAndDropHandler extends EventHandler<DragEvent> {
 
 	}
 
+	static DragAndDropHandler from(DragAcceptorBase draggedDataHandler, TransferMode transferMode,
+			DataFormat... acceptedDataFormats) {
+		return from(draggedDataHandler, new TransferMode[] { transferMode }, acceptedDataFormats);
+	}
+
+	/**
+	 * Creates a {@link DragAndDropHandler} handler which handles each of the
+	 * provided {@link DragFunction}'s {@link DragFunction#dataFormat() data
+	 * formats} in different ways (with {@link TransferMode}s specified by the
+	 * respective {@link DragFunction} and with a handler specified by the
+	 * {@link DragFunction}).
+	 * 
+	 * @param functions The {@link DragFunction}s to use.
+	 * @return The new {@link DragAndDropHandler}.
+	 */
+	static DragAndDropHandler from(DragFunction<?>... functions) {
+		return new DragAndDropHandler() {
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			@Override
+			public void handle(DragEvent event) {
+				if (event.getEventType() == DragEvent.DRAG_OVER) {
+					for (DragFunction<?> df : functions)
+						if (event.getDragboard().hasContent(df.dataFormat())) {
+							event.acceptTransferModes(df.getTransferModes());
+							break;
+						}
+					event.consume();
+				} else if (event.getEventType() == DragEvent.DRAG_DROPPED) {
+					boolean success = false;
+					try {
+						for (DragFunction<?> df : functions)
+							if (event.getDragboard().hasContent(df.dataFormat()))
+								success = ((DragFunction) df).handle(event.getDragboard().getContent(df.dataFormat()));
+					} catch (Exception e) {
+						e.printStackTrace();
+						success = false;
+					}
+					event.setDropCompleted(success);
+					event.consume();
+				}
+			}
+		};
+	}
+
+	interface DragFunction<D> {
+		DataFormat dataFormat();
+
+		TransferMode[] getTransferModes();
+
+		boolean handle(D data) throws Exception;
+
+		interface Handler<D> {
+			boolean handle(D data) throws Exception;
+		}
+
+		static <D> DragFunction<D> from(DataFormat format, TransferMode[] transferModes, Handler<? super D> handler) {
+			return new DragFunction<D>() {
+
+				@Override
+				public DataFormat dataFormat() {
+					return format;
+				}
+
+				@Override
+				public TransferMode[] getTransferModes() {
+					return transferModes;
+				}
+
+				@Override
+				public boolean handle(D data) throws Exception {
+					return handler.handle(data);
+				}
+			};
+		}
+	}
+
 	default void attach(Node node) {
 		node.setOnDragOver(this);
 		node.setOnDragDropped(this);
