@@ -1,4 +1,4 @@
-package pala.libs.jfxlib;
+package pala.libs.jfxlib.nodes;
 
 import java.util.function.Function;
 
