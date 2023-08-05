@@ -1,6 +1,10 @@
 package pala.libs.jfxlib;
 
+import javafx.scene.Node;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -22,5 +26,15 @@ public class JavaFXUtils {
 		t.setFill(color);
 		t.setFont(font);
 		return new StackPane(t);
+	}
+
+	public static void setVGrow(Priority priority, Node... nodes) {
+		for (Node n : nodes)
+			VBox.setVgrow(n, priority);
+	}
+
+	public static void setHGrow(Priority priority, Node... nodes) {
+		for (Node n : nodes)
+			HBox.setHgrow(n, priority);
 	}
 }
