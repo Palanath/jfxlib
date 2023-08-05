@@ -50,4 +50,9 @@ public class JavaFXUtils {
 		stage.setMaxWidth(maxWidth);
 		stage.setMaxHeight(maxHeight);
 	}
+
+	public static void setSize(Stage stage, double width, double height) {
+		stage.setWidth(width);
+		stage.setHeight(height);
+	}
 }
