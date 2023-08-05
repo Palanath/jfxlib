@@ -8,6 +8,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
 public class JavaFXUtils {
 	/**
@@ -21,11 +22,15 @@ public class JavaFXUtils {
 	 * @param font  The {@link Font} used to render the {@link Text}.
 	 * @return A new {@link StackPane} whose only child is the created {@link Text}.
 	 */
-	public static StackPane getCenteredText(String text, Color color, Font font) {
+	public static StackPane makeCenteredText(String text, Color color, Font font) {
+		return new StackPane(makeText(text, color, font));
+	}
+
+	public static Text makeText(String text, Color color, Font font) {
 		Text t = new Text(text);
 		t.setFill(color);
 		t.setFont(font);
-		return new StackPane(t);
+		return t;
 	}
 
 	public static void setVGrow(Priority priority, Node... nodes) {
@@ -36,5 +41,13 @@ public class JavaFXUtils {
 	public static void setHGrow(Priority priority, Node... nodes) {
 		for (Node n : nodes)
 			HBox.setHgrow(n, priority);
+	}
+
+	public static void setSizeConstraints(Stage stage, double minWidth, double minHeight, double maxWidth,
+			double maxHeight) {
+		stage.setMinWidth(minWidth);
+		stage.setMinHeight(minHeight);
+		stage.setMaxWidth(maxWidth);
+		stage.setMaxHeight(maxHeight);
 	}
 }
