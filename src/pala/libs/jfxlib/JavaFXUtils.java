@@ -67,6 +67,41 @@ public class JavaFXUtils {
 
 	/**
 	 * <p>
+	 * Returns an object binding which is considered to have been invalidated when
+	 * the provided {@link ObservableValue} is invalidated. The value of the binding
+	 * is computed from the provided <code>valueFunction</code>, which is provided
+	 * the current value of the {@link ObservableValue} upon execution.
+	 * </p>
+	 * 
+	 * @param <P>       The type of the {@link ObservableValue}'s value.
+	 * @param <R>       The type of value returned by the function.
+	 * @param property  The parent property, for example, an instance of
+	 *                  {@link StringProperty}.
+	 * @param valueFunc A {@link Function} used to compute a new value from the
+	 *                  provided {@link ObservableValue}.
+	 * @return The new object binding.
+	 */
+	public static <P, R> NewObjectBinding<R> property(ObservableValue<? extends P> property,
+			Function<? super P, ? extends R> valueFunc) {
+		return new NewObjectBinding<R>() {
+			{
+				bind(property);
+			}
+
+			@Override
+			public void dispose() {
+				unbind(property);
+			}
+
+			@Override
+			protected R computeValue() {
+				return valueFunc.apply(property.getValue());
+			}
+		};
+	}
+
+	/**
+	 * <p>
 	 * Returns an object binding that is represents the nested property, returned
 	 * from the provided <code>propertyAccessor</code>, that is contained within the
 	 * provided parent property. When this nested property changes value, the
